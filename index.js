@@ -536,10 +536,22 @@ export default class VideoPlayer extends Component {
       pauseOnPress,
       fullScreenOnLongPress,
       customStyles,
+      activeOpacity,
       ...props
     } = this.props;
     return (
-      <View style={customStyles.videoWrapper}>
+      <TouchableOpacity activeOpacity={activeOpacity} style={customStyles.videoWrapper} onPress={() => {
+        this.showControls();
+        if (pauseOnPress)
+          this.onPlayPress();
+      }}
+        onLongPress={() => {
+          if (fullScreenOnLongPress && Platform.OS !== 'android') {
+            this.onToggleFullScreen();
+          }
+
+          this.props.onLongPress()
+        }}>
         <Video
           {...props}
           style={[
@@ -560,31 +572,9 @@ export default class VideoPlayer extends Component {
           resizeMode={resizeMode}
           onSeek={this.onSeekEvent}
         />
-        <View
-          style={[
-            this.getSizeStyles(),
-            { marginTop: -this.getSizeStyles().height },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.overlayButton}
-            onPress={() => {
-              this.showControls();
-              if (pauseOnPress)
-                this.onPlayPress();
-            }}
-            onLongPress={() => {
-              if (fullScreenOnLongPress && Platform.OS !== 'android') {
-                this.onToggleFullScreen();
-              }
-
-              this.props.onLongPress()
-            }}
-          />
-        </View>
         {((!this.state.isPlaying) || this.state.isControlsVisible)
           ? this.renderControls() : this.renderSeekBar(true)}
-      </View>
+      </TouchableOpacity>
     );
   }
 
@@ -677,10 +667,11 @@ VideoPlayer.propTypes = {
   onPlayPress: PropTypes.func,
   onHideControls: PropTypes.func,
   onShowControls: PropTypes.func,
+  onMutePress: PropTypes.func,
+  showDuration: PropTypes.bool,
+  activeOpacity: PropTypes.number,
   onSeek: PropTypes.func,
   onLongPress: PropTypes.func,
-  onMutePress: PropTypes.func,
-  showDuration: PropTypes.bool
 };
 
 VideoPlayer.defaultProps = {
