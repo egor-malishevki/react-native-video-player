@@ -45,6 +45,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   playButton: {
+    position: 'absolute',
+    zIndex: 9999,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     width: 64,
     height: 64,
@@ -112,7 +114,7 @@ const styles = StyleSheet.create({
   },
   activeDurationText: {
     paddingLeft: 8,
-    paddingRight:0,
+    paddingRight: 0,
     paddingBottom: 0,
     paddingTop: 0
   },
@@ -136,12 +138,13 @@ export default class VideoPlayer extends Component {
       duration: 0,
       isSeeking: false,
     };
-    
+
     this.seekBarWidth = 200;
     this.wasPlayingBeforeSeek = props.autoplay;
     this.seekTouchStart = 0;
     this.seekProgressStart = 0;
 
+    this.renderContent = this.renderContent.bind(this);
     this.onLayout = this.onLayout.bind(this);
     this.onStartPress = this.onStartPress.bind(this);
     this.onProgress = this.onProgress.bind(this);
@@ -446,12 +449,12 @@ export default class VideoPlayer extends Component {
       >
         <View
           style={[
-            this.state.progress && {flexGrow: this.state.progress },
+            { flexGrow: this.state.progress },
             styles.seekBarProgress,
             customStyles.seekBarProgress,
           ]}
         />
-        { !fullWidth && !disableSeek ? (
+        {!fullWidth && !disableSeek ? (
           <View
             style={[
               styles.seekBarKnob,
@@ -467,7 +470,7 @@ export default class VideoPlayer extends Component {
             onResponderRelease={this.onSeekRelease}
             onResponderTerminate={this.onSeekRelease}
           />
-        ) : null }
+        ) : null}
         <View style={[
           styles.seekBarBackground,
           this.state.progress && { flexGrow: 1 - this.state.progress },
@@ -494,7 +497,7 @@ export default class VideoPlayer extends Component {
         {this.renderSeekBar()}
         {showDuration && (
           <>
-            <TextInput style={[styles.durationText, styles.activeDurationText, customStyles.durationText]} editable={false} ref={e=> this.currentTime=e} value={getDurationTime(0)}/>
+            <TextInput style={[styles.durationText, styles.activeDurationText, customStyles.durationText]} editable={false} ref={e => this.currentTime = e} value={getDurationTime(0)} />
             <Text style={[styles.durationText, customStyles.durationText]}>/</Text>
             <Text style={[styles.durationText, customStyles.durationText]}>{getDurationTime(this.state.duration)}</Text>
           </>
@@ -581,6 +584,11 @@ export default class VideoPlayer extends Component {
   renderContent() {
     const { thumbnail, endThumbnail, style } = this.props;
     const { isStarted, hasEnded } = this.state;
+    const {
+      video,
+      resizeMode,
+      ...props
+    } = this.props;
 
     if (hasEnded && endThumbnail) {
       return this.renderThumbnail(endThumbnail);
@@ -591,6 +599,13 @@ export default class VideoPlayer extends Component {
       return (
         <View style={[styles.preloadingPlaceholder, this.getSizeStyles(), style]}>
           {this.renderStartButton()}
+          <Video
+            {...props}
+            muted={true}
+            paused={true}
+            source={video}
+            resizeMode={resizeMode}
+          />
         </View>
       );
     }
