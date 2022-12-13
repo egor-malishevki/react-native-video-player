@@ -301,6 +301,8 @@ export default class VideoPlayer extends Component {
       isSeeking: true,
       isPlaying: false,
     });
+
+    this.props.onSeek(true);
   }
 
   onSeekRelease() {
@@ -310,6 +312,8 @@ export default class VideoPlayer extends Component {
       isPlaying: this.wasPlayingBeforeSeek,
     });
     this.showControls();
+
+    this.props.onSeek(false);
   }
 
   onSeek(e) {
@@ -483,7 +487,7 @@ export default class VideoPlayer extends Component {
   renderControls() {
     const { customStyles, showDuration } = this.props;
     return (
-      <View style={[styles.controls, customStyles.controls]}>
+      <View style={[styles.controls, customStyles.controls]} >
         <TouchableOpacity
           onPress={this.onPlayPress}
           style={[customStyles.controlButton, customStyles.playControl]}
@@ -570,8 +574,11 @@ export default class VideoPlayer extends Component {
                 this.onPlayPress();
             }}
             onLongPress={() => {
-              if (fullScreenOnLongPress && Platform.OS !== 'android')
+              if (fullScreenOnLongPress && Platform.OS !== 'android') {
                 this.onToggleFullScreen();
+              }
+
+              this.props.onLongPress()
             }}
           />
         </View>
@@ -670,6 +677,8 @@ VideoPlayer.propTypes = {
   onPlayPress: PropTypes.func,
   onHideControls: PropTypes.func,
   onShowControls: PropTypes.func,
+  onSeek: PropTypes.func,
+  onLongPress: PropTypes.func,
   onMutePress: PropTypes.func,
   showDuration: PropTypes.bool
 };
